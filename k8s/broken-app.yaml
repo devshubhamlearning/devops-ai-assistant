@@ -1,0 +1,27 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: broken-app
+  namespace: default
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: broken-app
+  template:
+    metadata:
+      labels:
+        app: broken-app
+    spec:
+      containers:
+      - name: broken-app
+        image: nginx:latest
+        resources:
+          limits:
+            memory: "32Mi"    # intentionally too low → OOMKilled
+            cpu: "50m"
+        env:
+        - name: CRASH_ON_START
+          value: "true"
+        command: ["/bin/sh"]
+        args: ["-c", "echo 'App starting...'; sleep 5; exit 1"]  # intentionally crashes
