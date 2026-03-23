@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: devops-ai-agent
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: devops-ai-agent
+  template:
+    metadata:
+      labels:
+        app: devops-ai-agent
+    spec:
+      serviceAccountName: devops-ai-sa
+      containers:
+      - name: devops-ai-agent
+        image: devops-ai-agent:latest
+        imagePullPolicy: Never
+        env:
+        - name: GROQ_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: devops-ai-secrets
+              key: GROQ_API_KEY
+        - name: PROMETHEUS_URL
+          valueFrom:
+            secretKeyRef:
+              name: devops-ai-secrets
+              key: PROMETHEUS_URL
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"

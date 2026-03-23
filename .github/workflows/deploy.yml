@@ -1,0 +1,44 @@
+name: Build & Deploy DevOps AI Agent
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Lint code
+      run: |
+        pip install flake8
+        flake8 agent/ --max-line-length=120 --ignore=E501,W503 || true
+
+    - name: Build Docker image
+      run: |
+        docker build -t devops-ai-agent:${{ github.sha }} -f docker/Dockerfile .
+        docker tag devops-ai-agent:${{ github.sha }} devops-ai-agent:latest
+
+    - name: Run smoke test
+      run: |
+        docker run --rm \
+          -e GROQ_API_KEY=${{ secrets.GROQ_API_KEY }} \
+          -e PROMETHEUS_URL=http://localhost:9090 \
+          devops-ai-agent:latest python3 -c "
+        from tools.log_analyzer import list_pods
+        print('✅ Import test passed')
+        "
