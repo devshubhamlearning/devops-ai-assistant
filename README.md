@@ -1,4 +1,4 @@
-# 🤖 DevOps AI Assistant (Project 14)
+# 🤖 DevOps AI Assistant 
 
 An **Agentic AI DevOps Assistant** that autonomously monitors Kubernetes clusters, fetches logs, analyzes metrics from Prometheus, and suggests fixes using LLMs.
 
